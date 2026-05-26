@@ -1,4 +1,10 @@
-# Minerva Task Dataset
+# Minerva
+
+AI 时代，真正稀缺的已经不再是数据，而是专家在真实任务中的经验与决策过程。很多时候，直接把知识抽象成一个 skill，其实会丢失大量关键上下文：为什么这样做、什么时候会失败、如何处理异常、不同条件下如何调整 workflow……本质上，真正有价值的不是结果，而是 expert trajectory。基于这个想法，我做了一个用于整理和沉淀各领域专家知识的工具。它不只是记录“答案”，更希望结构化保存专家经验。希望未来能逐渐形成一个“专家经验层（expertise layer）”，让知识不只是文档，而是真正可复用、可学习、可演化的工作过程。
+
+灵感来源：https://x.com/dotey/status/2058929615058477106?s=20
+
+## Minerva Task Dataset
 
 Minerva Task Dataset 是一个可嵌入 VS Code 的任务数据采集系统。用户在 Webview 中输入一个具体任务，再逐条填写已经完成的 step 和对应 feedback，最后把同一份结构化数据导出为 JSON、JSONL 或 CSV。
 
