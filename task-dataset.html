@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minerva Task Dataset</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f6f8;
+      --panel: #ffffff;
+      --panel-soft: #f8fafc;
+      --text: #1f2937;
+      --muted: #667085;
+      --border: #d8dee8;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --ok: #047857;
+      --danger: #b42318;
+      --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--text);
+      background: var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      min-height: 34px;
+      padding: 6px 12px;
+      color: var(--text);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover:not(:disabled) {
+      background: var(--panel-soft);
+    }
+
+    button:disabled {
+      cursor: default;
+      opacity: 0.46;
+    }
+
+    button.primary {
+      color: #ffffff;
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    button.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    button.danger {
+      color: var(--danger);
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      color: var(--text);
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus,
+    button:focus {
+      outline: 2px solid rgba(37, 99, 235, 0.2);
+      border-color: var(--accent);
+    }
+
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 22px;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar h1 {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .topbar p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .workspace {
+      min-height: 0;
+      display: grid;
+      grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+    }
+
+    .task-panel {
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      padding: 18px;
+      background: var(--panel);
+      border-right: 1px solid var(--border);
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 12px;
+    }
+
+    .records {
+      min-width: 0;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+      padding: 18px 22px 36px;
+      overflow: auto;
+    }
+
+    .empty {
+      padding: 34px 0;
+      color: var(--muted);
+    }
+
+    .record {
+      display: grid;
+      gap: 14px;
+      padding: 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .record-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .record-title {
+      min-width: 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .index {
+      flex: 0 0 26px;
+      width: 26px;
+      height: 26px;
+      display: grid;
+      place-items: center;
+      color: #ffffff;
+      background: var(--accent);
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .record-title strong {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .record-title span:not(.index) {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .record-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 6px;
+    }
+
+    .record-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .feedback-grid {
+      padding-top: 12px;
+      border-top: 1px solid var(--border);
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+    .save-state {
+      color: var(--ok);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    @media (max-width: 900px) {
+      .topbar,
+      .record-header {
+        display: grid;
+      }
+
+      .actions,
+      .record-actions {
+        justify-content: flex-start;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .task-panel {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .record-grid,
+      .status-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <h1>Minerva Task Dataset</h1>
+        <p id="datasetMeta"></p>
+      </div>
+      <div class="actions">
+        <button id="newButton" type="button">New</button>
+        <button id="importButton" type="button">Import</button>
+        <button id="addRecordButton" type="button">Add Step</button>
+        <button id="exportJsonButton" type="button">JSON</button>
+        <button id="exportJsonlButton" type="button">JSONL</button>
+        <button id="exportCsvButton" type="button">CSV</button>
+        <button id="finalizeButton" type="button" class="primary">Finalize</button>
+      </div>
+    </header>
+
+    <section class="workspace">
+      <aside class="task-panel">
+        <label>
+          Task
+          <input id="taskTitleInput" data-task-field="title" type="text" autocomplete="off" placeholder="输入具体任务">
+        </label>
+        <label>
+          Description
+          <textarea id="taskDescriptionInput" data-task-field="description" rows="5" placeholder="任务背景、目标或约束"></textarea>
+        </label>
+        <div class="status-row">
+          <label>
+            Task Status
+            <select id="taskStatusInput" data-task-field="status">
+              <option value="draft">draft</option>
+              <option value="in_progress">in_progress</option>
+              <option value="completed">completed</option>
+              <option value="archived">archived</option>
+            </select>
+          </label>
+          <label>
+            Review Status
+            <select id="reviewStatusInput" data-review-field="status">
+              <option value="draft">draft</option>
+              <option value="ready">ready</option>
+              <option value="reviewed">reviewed</option>
+            </select>
+          </label>
+        </div>
+        <label>
+          Reviewer
+          <input id="reviewerInput" data-review-field="reviewer" type="text" autocomplete="off">
+        </label>
+        <label>
+          Final Result
+          <textarea id="finalResultInput" data-review-field="finalResult" rows="4"></textarea>
+        </label>
+        <label>
+          Overall Feedback
+          <textarea id="overallFeedbackInput" data-review-field="overallFeedback" rows="6"></textarea>
+        </label>
+        <p id="saveState" class="save-state"></p>
+      </aside>
+
+      <section id="records" class="records" aria-live="polite"></section>
+    </section>
+  </main>
+
+  <input id="fileInput" class="hidden" type="file" accept="application/json,.json">
+
+  <script>
+    (function () {
+      const SCHEMA_VERSION = 2;
+      const STORAGE_KEY = "minerva.taskDataset.session.v2";
+      const RECORD_FIELDS = new Set([
+        "step.title",
+        "step.detail",
+        "step.completionStatus",
+        "step.completedAt",
+        "feedback.outcome",
+        "feedback.score",
+        "feedback.notes",
+        "feedback.issue",
+        "feedback.nextAction",
+        "evidence.files",
+        "evidence.links"
+      ]);
+
+      let session = loadSession();
+
+      const datasetMeta = document.getElementById("datasetMeta");
+      const recordsNode = document.getElementById("records");
+      const saveState = document.getElementById("saveState");
+      const fileInput = document.getElementById("fileInput");
+
+      document.getElementById("newButton").addEventListener("click", createNewSession);
+      document.getElementById("importButton").addEventListener("click", () => fileInput.click());
+      document.getElementById("addRecordButton").addEventListener("click", addRecord);
+      document.getElementById("exportJsonButton").addEventListener("click", () => exportSession("json"));
+      document.getElementById("exportJsonlButton").addEventListener("click", () => exportSession("jsonl"));
+      document.getElementById("exportCsvButton").addEventListener("click", () => exportSession("csv"));
+      document.getElementById("finalizeButton").addEventListener("click", finalizeSession);
+
+      fileInput.addEventListener("change", importJson);
+
+      document.body.addEventListener("input", (event) => {
+        updateFromInput(event.target);
+      });
+
+      document.body.addEventListener("change", (event) => {
+        updateFromInput(event.target);
+      });
+
+      document.body.addEventListener("click", (event) => {
+        const button = event.target.closest("button[data-action]");
+        if (!button) {
+          return;
+        }
+
+        const recordId = button.getAttribute("data-record-id");
+        const action = button.getAttribute("data-action");
+        if (action === "delete") {
+          deleteRecord(recordId);
+        } else if (action === "move-up" || action === "move-down") {
+          moveRecord(recordId, action === "move-up" ? -1 : 1);
+        }
+      });
+
+      render();
+
+      function createNewSession() {
+        session = createSession();
+        saveAndRender();
+      }
+
+      function addRecord() {
+        session.records.push(createRecord());
+        renumberRecords();
+        saveAndRender();
+      }
+
+      function deleteRecord(recordId) {
+        session.records = session.records.filter((record) => record.id !== recordId);
+        renumberRecords();
+        saveAndRender();
+      }
+
+      function moveRecord(recordId, offset) {
+        const currentIndex = session.records.findIndex((record) => record.id === recordId);
+        const nextIndex = currentIndex + offset;
+        if (currentIndex < 0 || nextIndex < 0 || nextIndex >= session.records.length) {
+          return;
+        }
+
+        const record = session.records.splice(currentIndex, 1)[0];
+        session.records.splice(nextIndex, 0, record);
+        renumberRecords();
+        saveAndRender();
+      }
+
+      function finalizeSession() {
+        const timestamp = now();
+        session.task.status = "completed";
+        session.task.completedAt = session.task.completedAt || timestamp;
+        session.task.updatedAt = timestamp;
+        session.review.status = "reviewed";
+        session.review.reviewedAt = timestamp;
+        saveAndRender();
+      }
+
+      function updateFromInput(target) {
+        if (!target || !target.matches("input, select, textarea")) {
+          return;
+        }
+
+        const taskField = target.getAttribute("data-task-field");
+        const reviewField = target.getAttribute("data-review-field");
+        const recordId = target.getAttribute("data-record-id");
+        const recordField = target.getAttribute("data-field");
+
+        if (taskField) {
+          session.task[taskField] = target.value;
+          session.task.updatedAt = now();
+          if (taskField === "status" && target.value === "completed") {
+            session.task.completedAt = session.task.completedAt || now();
+          }
+          saveSession();
+          renderMeta();
+          return;
+        }
+
+        if (reviewField) {
+          session.review[reviewField] = target.value;
+          if (reviewField === "status" && target.value === "reviewed") {
+            session.review.reviewedAt = session.review.reviewedAt || now();
+          }
+          saveSession();
+          renderMeta();
+          return;
+        }
+
+        if (recordId && RECORD_FIELDS.has(recordField)) {
+          const record = session.records.find((item) => item.id === recordId);
+          if (!record) {
+            return;
+          }
+          setNestedValue(record, recordField, target.value);
+          record.meta.updatedAt = now();
+          saveSession();
+          renderMeta();
+        }
+      }
+
+      function render() {
+        renderTask();
+        renderMeta();
+        renderRecords();
+      }
+
+      function renderTask() {
+        setValue("taskTitleInput", session.task.title);
+        setValue("taskDescriptionInput", session.task.description);
+        setValue("taskStatusInput", session.task.status);
+        setValue("reviewStatusInput", session.review.status);
+        setValue("reviewerInput", session.review.reviewer);
+        setValue("finalResultInput", session.review.finalResult);
+        setValue("overallFeedbackInput", session.review.overallFeedback);
+      }
+
+      function renderMeta() {
+        session.meta.recordCount = session.records.length;
+        datasetMeta.textContent = [
+          session.task.status || "draft",
+          session.review.status || "draft",
+          session.records.length + " step(s)",
+          "updated " + formatTime(session.meta.updatedAt)
+        ].join(" · ");
+        saveState.textContent = "Saved locally";
+      }
+
+      function renderRecords() {
+        if (!session.records.length) {
+          recordsNode.innerHTML = '<div class="empty">No steps yet.</div>';
+          return;
+        }
+
+        recordsNode.innerHTML = session.records.map(renderRecord).join("");
+      }
+
+      function renderRecord(record) {
+        const first = record.index === 1;
+        const last = record.index === session.records.length;
+        return '<article class="record" data-record-id="' + escapeAttr(record.id) + '">' +
+          '<header class="record-header">' +
+            '<div class="record-title">' +
+              '<span class="index">' + escapeHtml(record.index) + '</span>' +
+              '<div><strong>' + escapeHtml(record.step.title || "Untitled step") + '</strong>' +
+              '<span>' + escapeHtml(record.step.completionStatus || "done") + '</span></div>' +
+            '</div>' +
+            '<div class="record-actions">' +
+              '<button type="button" data-action="move-up" data-record-id="' + escapeAttr(record.id) + '"' + (first ? " disabled" : "") + '>Up</button>' +
+              '<button type="button" data-action="move-down" data-record-id="' + escapeAttr(record.id) + '"' + (last ? " disabled" : "") + '>Down</button>' +
+              '<button type="button" class="danger" data-action="delete" data-record-id="' + escapeAttr(record.id) + '">Delete</button>' +
+            '</div>' +
+          '</header>' +
+          '<div class="record-grid">' +
+            fieldInput(record, "step.title", "Completed Step", record.step.title, "这一步完成了什么", true) +
+            selectInput(record, "step.completionStatus", "Completion Status", record.step.completionStatus, ["done", "partial", "blocked", "skipped"]) +
+            fieldInput(record, "step.completedAt", "Completed At", record.step.completedAt, "ISO time or free text", false) +
+            textareaInput(record, "step.detail", "Step Detail", record.step.detail, "补充操作过程、输入条件、观察到的行为", true, 4) +
+          '</div>' +
+          '<div class="record-grid feedback-grid">' +
+            selectInput(record, "feedback.outcome", "Feedback Outcome", record.feedback.outcome, ["not_set", "success", "failed", "needs_followup", "unclear"]) +
+            fieldInput(record, "feedback.score", "Feedback Score", record.feedback.score, "optional", false) +
+            textareaInput(record, "feedback.notes", "Feedback", record.feedback.notes, "对这一步结果的反馈、评价或标注", true, 4) +
+            textareaInput(record, "feedback.issue", "Issue", record.feedback.issue, "问题或失败原因", false, 3) +
+            textareaInput(record, "feedback.nextAction", "Next Action", record.feedback.nextAction, "下一步建议或待补充内容", false, 3) +
+            textareaInput(record, "evidence.files", "Files", record.evidence.files, "每行一个文件，可选", false, 3) +
+            textareaInput(record, "evidence.links", "Links", record.evidence.links, "每行一个链接，可选", false, 3) +
+          '</div>' +
+        '</article>';
+      }
+
+      function fieldInput(record, field, label, value, placeholder, wide) {
+        return '<label' + (wide ? ' class="wide"' : "") + '>' + escapeHtml(label) +
+          '<input data-record-id="' + escapeAttr(record.id) + '" data-field="' + escapeAttr(field) +
+          '" value="' + escapeAttr(value || "") + '" placeholder="' + escapeAttr(placeholder || "") + '">' +
+        '</label>';
+      }
+
+      function textareaInput(record, field, label, value, placeholder, wide, rows) {
+        return '<label' + (wide ? ' class="wide"' : "") + '>' + escapeHtml(label) +
+          '<textarea data-record-id="' + escapeAttr(record.id) + '" data-field="' + escapeAttr(field) +
+          '" rows="' + escapeAttr(rows || 3) + '" placeholder="' + escapeAttr(placeholder || "") + '">' +
+          escapeHtml(value || "") + '</textarea></label>';
+      }
+
+      function selectInput(record, field, label, value, options) {
+        return '<label>' + escapeHtml(label) +
+          '<select data-record-id="' + escapeAttr(record.id) + '" data-field="' + escapeAttr(field) + '">' +
+          options.map((option) => '<option value="' + escapeAttr(option) + '"' + (option === value ? " selected" : "") + '>' + escapeHtml(option) + '</option>').join("") +
+          '</select></label>';
+      }
+
+      function createSession() {
+        const timestamp = now();
+        return {
+          schemaVersion: SCHEMA_VERSION,
+          id: makeId("session"),
+          task: {
+            id: makeId("task"),
+            title: "",
+            description: "",
+            status: "draft",
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            completedAt: null
+          },
+          records: [],
+          review: {
+            status: "draft",
+            reviewer: "",
+            finalResult: "",
+            overallFeedback: "",
+            reviewedAt: null
+          },
+          environment: {
+            app: "standalone-html",
+            userAgent: navigator.userAgent
+          },
+          meta: {
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            recordCount: 0
+          }
+        };
+      }
+
+      function createRecord() {
+        const timestamp = now();
+        return {
+          id: makeId("record"),
+          sessionId: session.id,
+          taskId: session.task.id,
+          index: session.records.length + 1,
+          step: {
+            id: makeId("step"),
+            title: "",
+            detail: "",
+            completionStatus: "done",
+            completedAt: timestamp
+          },
+          feedback: {
+            outcome: "not_set",
+            score: "",
+            notes: "",
+            issue: "",
+            nextAction: ""
+          },
+          evidence: {
+            source: "manual",
+            files: "",
+            links: ""
+          },
+          meta: {
+            createdAt: timestamp,
+            updatedAt: timestamp,
+            source: "manual"
+          }
+        };
+      }
+
+      function loadSession() {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) {
+            return normalizeSession(JSON.parse(saved));
+          }
+        } catch (error) {
+          console.warn(error);
+        }
+        return createSession();
+      }
+
+      function normalizeSession(input) {
+        const base = createSession();
+        const source = input && typeof input === "object" ? input : {};
+        const task = source.task || {};
+        const review = source.review || {};
+        const records = Array.isArray(source.records) ? source.records : [];
+
+        base.id = source.id || (source.session && source.session.id) || base.id;
+        base.task = {
+          ...base.task,
+          ...task,
+          id: task.id || base.task.id,
+          status: ["draft", "in_progress", "completed", "archived"].includes(task.status) ? task.status : "draft"
+        };
+        base.review = {
+          ...base.review,
+          ...review,
+          status: ["draft", "ready", "reviewed"].includes(review.status) ? review.status : "draft"
+        };
+        base.records = records.map((record, index) => normalizeRecord(record, index, base));
+        base.environment = source.environment || base.environment;
+        base.meta = {
+          ...base.meta,
+          ...(source.meta || {}),
+          recordCount: base.records.length
+        };
+        return base;
+      }
+
+      function normalizeRecord(record, index, owner) {
+        const timestamp = now();
+        const step = record.step || {};
+        const feedback = record.feedback || {};
+        const evidence = record.evidence || {};
+        const meta = record.meta || {};
+        return {
+          id: record.id || (record.record && record.record.id) || makeId("record"),
+          sessionId: owner.id,
+          taskId: owner.task.id,
+          index: index + 1,
+          step: {
+            id: step.id || makeId("step"),
+            title: step.title || "",
+            detail: step.detail || "",
+            completionStatus: step.completionStatus || "done",
+            completedAt: step.completedAt || timestamp
+          },
+          feedback: {
+            outcome: feedback.outcome || "not_set",
+            score: feedback.score === undefined ? "" : String(feedback.score),
+            notes: feedback.notes || "",
+            issue: feedback.issue || "",
+            nextAction: feedback.nextAction || ""
+          },
+          evidence: {
+            source: evidence.source || "manual",
+            files: stringifyList(evidence.files),
+            links: stringifyList(evidence.links)
+          },
+          meta: {
+            createdAt: meta.createdAt || timestamp,
+            updatedAt: meta.updatedAt || timestamp,
+            source: meta.source || "manual"
+          }
+        };
+      }
+
+      function saveAndRender() {
+        saveSession();
+        render();
+      }
+
+      function saveSession() {
+        session.meta.updatedAt = now();
+        session.meta.recordCount = session.records.length;
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
+        } catch (error) {
+          saveState.textContent = "Local save failed";
+          console.warn(error);
+        }
+      }
+
+      function exportSession(format) {
+        const envelope = createExportEnvelope();
+        const filename = safeFilename(session.task.title || "minerva-task") + "-" + session.id + "." + format;
+        let text = "";
+
+        if (format === "json") {
+          text = JSON.stringify(envelope, null, 2) + "\n";
+        } else if (format === "jsonl") {
+          text = envelope.records.map((record) => JSON.stringify(record)).join("\n") + "\n";
+        } else {
+          text = serializeCsv(envelope.records);
+        }
+
+        download(filename, text);
+      }
+
+      function createExportEnvelope() {
+        const generatedAt = now();
+        return {
+          schemaVersion: SCHEMA_VERSION,
+          generatedAt,
+          session: {
+            id: session.id,
+            createdAt: session.meta.createdAt,
+            updatedAt: session.meta.updatedAt,
+            recordCount: session.records.length
+          },
+          task: session.task,
+          review: session.review,
+          records: session.records.map((record) => createExportRecord(record, generatedAt)),
+          environment: session.environment
+        };
+      }
+
+      function createExportRecord(record, generatedAt) {
+        return {
+          schemaVersion: SCHEMA_VERSION,
+          generatedAt,
+          session: {
+            id: session.id
+          },
+          task: {
+            id: session.task.id,
+            title: session.task.title,
+            description: session.task.description,
+            status: session.task.status,
+            createdAt: session.task.createdAt,
+            completedAt: session.task.completedAt
+          },
+          record: {
+            id: record.id,
+            index: record.index,
+            source: record.meta.source,
+            createdAt: record.meta.createdAt,
+            updatedAt: record.meta.updatedAt
+          },
+          step: {
+            id: record.step.id,
+            index: record.index,
+            title: record.step.title,
+            detail: record.step.detail,
+            completionStatus: record.step.completionStatus,
+            completedAt: record.step.completedAt
+          },
+          feedback: {
+            outcome: record.feedback.outcome,
+            score: record.feedback.score,
+            notes: record.feedback.notes,
+            issue: record.feedback.issue,
+            nextAction: record.feedback.nextAction
+          },
+          evidence: {
+            source: record.evidence.source,
+            files: splitLines(record.evidence.files),
+            links: splitLines(record.evidence.links)
+          },
+          review: {
+            status: session.review.status,
+            reviewer: session.review.reviewer,
+            finalResult: session.review.finalResult,
+            overallFeedback: session.review.overallFeedback,
+            reviewedAt: session.review.reviewedAt
+          }
+        };
+      }
+
+      function serializeCsv(records) {
+        const rows = [
+          [
+            "schema_version",
+            "session_id",
+            "task_id",
+            "task_title",
+            "task_description",
+            "task_status",
+            "record_id",
+            "step_id",
+            "step_index",
+            "step_title",
+            "step_detail",
+            "completion_status",
+            "completed_at",
+            "feedback_outcome",
+            "feedback_score",
+            "feedback_notes",
+            "feedback_issue",
+            "feedback_next_action",
+            "reviewer",
+            "final_result",
+            "overall_feedback"
+          ],
+          ...records.map((record) => [
+            record.schemaVersion,
+            record.session.id,
+            record.task.id,
+            record.task.title,
+            record.task.description,
+            record.task.status,
+            record.record.id,
+            record.step.id,
+            record.step.index,
+            record.step.title,
+            record.step.detail,
+            record.step.completionStatus,
+            record.step.completedAt,
+            record.feedback.outcome,
+            record.feedback.score,
+            record.feedback.notes,
+            record.feedback.issue,
+            record.feedback.nextAction,
+            record.review.reviewer,
+            record.review.finalResult,
+            record.review.overallFeedback
+          ])
+        ];
+        return rows.map((row) => row.map(csvCell).join(",")).join("\n") + "\n";
+      }
+
+      function importJson(event) {
+        const file = event.target.files && event.target.files[0];
+        if (!file) {
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => {
+          try {
+            const parsed = JSON.parse(String(reader.result || "{}"));
+            session = normalizeSession(parsed.records && parsed.task ? parsed : parsed.session ? parsed : parsed);
+            saveAndRender();
+          } catch (error) {
+            saveState.textContent = "Import failed";
+            console.warn(error);
+          } finally {
+            fileInput.value = "";
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function download(filename, text) {
+        const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(link.href);
+      }
+
+      function renumberRecords() {
+        session.records.forEach((record, index) => {
+          record.index = index + 1;
+          record.sessionId = session.id;
+          record.taskId = session.task.id;
+        });
+      }
+
+      function setNestedValue(target, field, value) {
+        const parts = field.split(".");
+        let current = target;
+        for (let index = 0; index < parts.length - 1; index += 1) {
+          current = current[parts[index]];
+        }
+        current[parts[parts.length - 1]] = value;
+      }
+
+      function setValue(id, value) {
+        const node = document.getElementById(id);
+        if (node && document.activeElement !== node && node.value !== value) {
+          node.value = value || "";
+        }
+      }
+
+      function splitLines(value) {
+        return String(value || "")
+          .split(/\r?\n/)
+          .map((item) => item.trim())
+          .filter(Boolean);
+      }
+
+      function stringifyList(value) {
+        return Array.isArray(value) ? value.join("\n") : String(value || "");
+      }
+
+      function csvCell(value) {
+        const text = value === null || value === undefined ? "" : String(value);
+        return '"' + text.replace(/"/g, '""') + '"';
+      }
+
+      function safeFilename(value) {
+        return String(value)
+          .toLowerCase()
+          .replace(/[^a-z0-9._-]+/g, "-")
+          .replace(/^-+|-+$/g, "")
+          .slice(0, 80) || "minerva-task";
+      }
+
+      function makeId(prefix) {
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          return prefix + "_" + window.crypto.randomUUID();
+        }
+        return prefix + "_" + Math.random().toString(16).slice(2) + Date.now().toString(16);
+      }
+
+      function formatTime(value) {
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) {
+          return value || "";
+        }
+        return date.toLocaleString();
+      }
+
+      function now() {
+        return new Date().toISOString();
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
+      }
+
+      function escapeAttr(value) {
+        return escapeHtml(value).replace(/`/g, "&#096;");
+      }
+    }());
+  </script>
+</body>
+</html>

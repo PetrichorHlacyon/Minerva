@@ -1,0 +1,4 @@
+.git/**
+.minerva/**
+node_modules/**
+*.vsix

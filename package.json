@@ -1,0 +1,108 @@
+{
+  "name": "minerva-task-dataset",
+  "displayName": "Minerva Task Dataset",
+  "description": "Collect task steps and feedback in one unified exportable data structure.",
+  "version": "0.1.0",
+  "publisher": "minerva-local",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.92.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onCommand:minervaTrace.startRecording",
+    "onCommand:minervaTrace.stopRecording",
+    "onCommand:minervaTrace.completeTask",
+    "onCommand:minervaTrace.openReview",
+    "onCommand:minervaTrace.addManualStep",
+    "onCommand:minervaTrace.exportJson",
+    "onCommand:minervaTrace.exportJsonl",
+    "onCommand:minervaTrace.exportCsv"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "minervaTrace.startRecording",
+        "title": "Minerva: New Task Dataset",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.stopRecording",
+        "title": "Minerva: Close Current Dataset",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.completeTask",
+        "title": "Minerva: Complete Task",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.openReview",
+        "title": "Minerva: Open Task Dataset",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.addManualStep",
+        "title": "Minerva: Add Step",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.exportJson",
+        "title": "Minerva: Export JSON",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.exportJsonl",
+        "title": "Minerva: Export JSONL",
+        "category": "Minerva"
+      },
+      {
+        "command": "minervaTrace.exportCsv",
+        "title": "Minerva: Export CSV",
+        "category": "Minerva"
+      }
+    ],
+    "configuration": {
+      "title": "Minerva Task Dataset",
+      "properties": {
+        "minervaTrace.storageRoot": {
+          "type": "string",
+          "default": ".minerva/tasks",
+          "description": "Where task dataset session files are stored. Relative paths are resolved from the first workspace folder."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "minervaTrace.startRecording"
+        },
+        {
+          "command": "minervaTrace.stopRecording"
+        },
+        {
+          "command": "minervaTrace.completeTask"
+        },
+        {
+          "command": "minervaTrace.openReview"
+        },
+        {
+          "command": "minervaTrace.addManualStep"
+        },
+        {
+          "command": "minervaTrace.exportJson"
+        },
+        {
+          "command": "minervaTrace.exportJsonl"
+        },
+        {
+          "command": "minervaTrace.exportCsv"
+        }
+      ]
+    }
+  }
+}
